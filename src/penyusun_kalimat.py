@@ -2,8 +2,11 @@
 import time
 
 AMBANG_YAKIN = 0.80
-BERTURUT = {"huruf": 8, "kata": 3}
-JEDA_TOKEN = 1.0      # detik minimal antar token yang diterima
+BERTURUT = {"huruf": 6, "kata": 3}       # berapa prediksi berturut-turut sampai diterima
+# jika model SANGAT yakin, cukup sedikit frame -> huruf yang benar cepat tercatat
+SANGAT_YAKIN = 0.95
+BERTURUT_CEPAT = {"huruf": 3, "kata": 2}
+JEDA_TOKEN = {"huruf": 0.5, "kata": 1.0}  # detik minimal antar token yang diterima
 
 
 class PenyusunKalimat:
@@ -15,6 +18,7 @@ class PenyusunKalimat:
         self._t_terakhir = -1e9
         self._label_terakhir = None
         self._lepas = True    # label sama baru boleh diulang setelah "dilepas"
+        self._yakin_min = 1.0
 
     def tangan_hilang(self):
         """Dipanggil saat tangan tidak terlihat: isyarat dianggap dilepas."""
@@ -30,14 +34,16 @@ class PenyusunKalimat:
         if label == self._calon:
             self._hitung += 1
         else:
-            self._calon, self._hitung = label, 1
-        if self._hitung < BERTURUT[mode]:
+            self._calon, self._hitung, self._yakin_min = label, 1, 1.0
+        self._yakin_min = min(self._yakin_min, keyakinan)
+        perlu = BERTURUT_CEPAT[mode] if self._yakin_min >= SANGAT_YAKIN else BERTURUT[mode]
+        if self._hitung < perlu:
             return False
         if label != self._label_terakhir:
             self._lepas = True        # sudah berganti isyarat dengan stabil
         if not self._lepas:
             return False              # isyarat sama masih ditahan -> jangan diketik ulang
-        if sekarang - self._t_terakhir < JEDA_TOKEN:
+        if sekarang - self._t_terakhir < JEDA_TOKEN[mode]:
             return False
         if mode == "kata" and self.token and self.token[-1][0] == "huruf":
             self.token.append(("spasi", ""))  # kata baru memutus ejaan huruf
@@ -127,3 +133,13 @@ if __name__ == "__main__":
     print("3:", p.teks(), "| harapan: Aa (huruf dobel setelah tangan diturunkan)")
     p.hapus_terakhir()
     print("4:", p.teks(), "| harapan: A")
+
+    p.bersihkan()
+    t0 = jam[0]
+    for h in "BUDI":                          # model sangat yakin, 20 FPS
+        kirim(h, "huruf", 12, yakin=0.98)
+    print("5:", p.teks(), f"| harapan: Budi  (4 huruf dalam {jam[0] - t0:.1f} dtk)")
+
+    p.bersihkan()
+    kirim("M", "huruf", 5, yakin=0.85)        # kurang yakin: 5 frame belum cukup
+    print("6:", repr(p.teks()), "| harapan: '' (perlu 6 frame jika tidak sangat yakin)")
