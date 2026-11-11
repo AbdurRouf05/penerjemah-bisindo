@@ -1,0 +1,15 @@
+# lingkungan Python
+.venv/
+__pycache__/
+*.pyc
+
+# data mentah (besar, unduh sendiri - lihat docs/PANDUAN_PROYEK.md)
+data/raw/
+
+# file sementara training / ekstraksi
+data/landmarks/_checkpoint/
+models/_backup/
+*_log.txt
+
+# model besar (>100 MB, tidak muat di GitHub) & model pembanding sklearn
+models/*.joblib

@@ -1,0 +1,13 @@
+numpy==1.26.4
+pandas
+opencv-python==4.11.0.86
+mediapipe==0.10.21
+tensorflow==2.19.1
+scikit-learn
+matplotlib
+seaborn
+tqdm
+edge-tts
+pygame
+pyttsx3
+kaggle
