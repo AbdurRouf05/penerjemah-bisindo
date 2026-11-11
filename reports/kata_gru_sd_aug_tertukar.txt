@@ -1,0 +1,5 @@
+terima_kasih -> kapan: 2
+tuli -> ingat: 1
+siapa -> lagi: 1
+ingat -> tuli: 1
+hari -> malam: 1

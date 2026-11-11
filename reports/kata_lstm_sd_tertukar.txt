@@ -1,0 +1,2 @@
+malam -> hari: 1
+makan -> kuning: 1

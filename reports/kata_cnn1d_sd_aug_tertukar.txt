@@ -1,0 +1,5 @@
+makan -> kuning: 2
+terima_kasih -> saya: 1
+malam -> hari: 1
+ingat -> merah: 1
+apa -> kapan: 1

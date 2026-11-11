@@ -1,0 +1,6 @@
+tuli -> ingat: 2
+berangkat -> cari: 2
+lagi -> berangkat: 1
+dengar -> sore: 1
+datang -> hari: 1
+berangkat -> lagi: 1
