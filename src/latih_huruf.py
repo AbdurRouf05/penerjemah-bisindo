@@ -31,8 +31,9 @@ from src.latih_umum import (MODELS, REPORTS, ROOT, SEED, evaluasi, latih_keras,
 DATASET_DIBUANG = {"alphabet_image_data", "bisindo_70_30", "dataset_of_bisindo"}
 # Rekaman sendiri digandakan agar cukup berpengaruh (jumlahnya jauh lebih sedikit)
 BOBOT_REKAMAN = 3
-# Huruf dianggap "dua tangan" jika >= 55% sampelnya terdeteksi dua tangan
-AMBANG_DUA_TANGAN = 0.55
+# Huruf dianggap "dua tangan" jika >= 62% sampelnya terdeteksi dua tangan.
+# (Y hanya 59% -> ada variasi 1 tangan & 2 tangan, jadi TIDAK diwajibkan dua tangan)
+AMBANG_DUA_TANGAN = 0.62
 
 
 def muat_huruf(pola, buang=()):
