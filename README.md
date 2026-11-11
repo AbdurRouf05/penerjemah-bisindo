@@ -26,7 +26,7 @@ checkpoint (`data/landmarks/_checkpoint/`), training lanjut dari epoch terakhir 
 Yang sudah selesai tidak diulang.
 
 ## 3. Tombol aplikasi
-`h` mode huruf · `k` mode kata · `SPASI` spasi · `BACKSPACE` hapus · `c` bersihkan ·
+`h` mode huruf · `k` mode kata · `m` mode meme (ekspresi & gesture → meme, dari repo gesture-meme-vision) · `SPASI` spasi · `BACKSPACE` hapus · `c` bersihkan ·
 `ENTER` ucapkan · `q` keluar
 
 ## 4. Rekam data sendiri (anggota kelompok)

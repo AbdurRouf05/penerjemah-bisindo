@@ -3,7 +3,7 @@
     .venv\\Scripts\\python.exe -m src.app
 
 Tombol:
-  h = mode HURUF      k = mode KATA
+  h = mode HURUF      k = mode KATA      m = mode MEME (ekspresi & gesture -> meme)
   SPASI = spasi       BACKSPACE = hapus terakhir      c = bersihkan
   ENTER = ucapkan kalimat                              q = keluar
 """
@@ -20,6 +20,7 @@ import mediapipe as mp
 import numpy as np
 import tensorflow as tf
 
+from src import meme
 from src.features import (N_HANDS, SEQ_LEN, buat_holistic, fitur_frame, fitur_huruf,
                           proses_bgr)
 from src.latih_umum import LABELS, MODELS
@@ -108,14 +109,14 @@ def susun_tampilan(img, mode, fps, pred_teks, kalimat):
     s = w / 1280                                   # skala tulisan ikut lebar gambar
     t = max(1, round(2 * s))
     panel(img, 0, int(95 * s))
-    warna_mode = (0, 220, 255) if mode == "huruf" else (255, 200, 0)
+    warna_mode = {"huruf": (0, 220, 255), "kata": (255, 200, 0)}.get(mode, (200, 120, 255))
     tulis(img, f"MODE {mode.upper()}", (int(20 * s), int(38 * s)), 0.9 * s, warna_mode, t)
     tulis(img, f"{fps:.0f} FPS", (w - int(130 * s), int(38 * s)), 0.7 * s, (180, 180, 180), 1)
     tulis(img, f"Prediksi: {pred_teks}", (int(20 * s), int(78 * s)), 0.8 * s, (255, 255, 255), t)
 
     panel(img, h - int(120 * s), h, 0.7)
     tulis(img, kalimat or "...", (int(20 * s), h - int(62 * s)), 1.2 * s, (255, 255, 255), t)
-    tulis(img, "h huruf  |  k kata  |  SPASI  |  BACKSPACE hapus  |  c bersihkan  |  "
+    tulis(img, "h huruf  |  k kata  |  m meme  |  SPASI  |  BACKSPACE hapus  |  c bersihkan  |  "
                "ENTER suara  |  q keluar", (int(20 * s), h - int(20 * s)), 0.55 * s,
           (170, 170, 170), 1)
     return img
@@ -160,6 +161,7 @@ def main():
     riwayat_p = deque(maxlen=RATA_FRAME_HURUF)
     n_frame, fps, t_lalu = 0, 0.0, time.monotonic()
     pred_teks = "-"
+    penstabil_meme = meme.Penstabil()
 
     while True:
         ok, frame = cap.read()
@@ -189,6 +191,9 @@ def main():
                 pred_teks = "- (tangan tidak terlihat)"
                 riwayat_p.clear()
                 penyusun.tangan_hilang()
+        elif mode == "meme":
+            g = penstabil_meme.perbarui(meme.deteksi(res, frame.shape[1], frame.shape[0]))
+            pred_teks = meme.NAMA_TAMPIL[g]
         elif mode == "kata" and model_kata is not None and n_frame % TIAP_N_FRAME_KATA == 0:
             if len(jendela) == SEQ_LEN and sum(ada_tangan) >= MIN_FRAME_TANGAN:
                 i, p = prediksi(model_kata, np.array(jendela, np.float32)[None])
@@ -203,14 +208,20 @@ def main():
         sekarang = time.monotonic()
         fps = 0.9 * fps + 0.1 / max(sekarang - t_lalu, 1e-6)
         t_lalu = sekarang
-        cv2.imshow(JUDUL, susun_tampilan(cv2.flip(frame, 1), mode, fps, pred_teks,
-                                         penyusun.teks()))   # flip HANYA untuk tampilan
+        tampil = susun_tampilan(cv2.flip(frame, 1), mode, fps, pred_teks,
+                                penyusun.teks())             # flip HANYA untuk tampilan
+        if mode == "meme":
+            meme.tempel(tampil, penstabil_meme.aktif, int(95 * tampil.shape[1] / 1280))
+        cv2.imshow(JUDUL, tampil)
 
         key = cv2.waitKey(1) & 0xFF
         if key == ord("q"):
             break
         if key == ord("h") and model_huruf is not None:
             mode = "huruf"
+            riwayat_p.clear()
+        elif key == ord("m"):
+            mode, pred_teks = "meme", "-"
         elif key == ord("k") and model_kata is not None:
             mode, pred_teks = "kata", "-"
             jendela.clear()
