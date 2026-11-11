@@ -11,8 +11,8 @@ centang "Add python.exe to PATH" saat instal) dan **Git** ([git-scm.com](https:/
 
 Buka PowerShell, lalu:
 ```powershell
-git clone <alamat-repo-github>
-cd <nama-folder-repo>
+git clone https://github.com/AbdurRouf05/penerjemah-bisindo.git
+cd penerjemah-bisindo
 py -3.11 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-rekam.txt
 ```
